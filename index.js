@@ -34,6 +34,14 @@ app.post("/createacc", async (request, response) => {
   response.json(acc)
 });
 
+app.post("/tokenbalance", async (request, response) => {
+  var userAddress = request.body.address;
+  let balance = await alchemy.core.getTokenBalances(userAddress, [contractAddress]);
+  balance = balance['tokenBalances'][0]['tokenBalance'];
+  balance = parseInt(balance);
+  response.status(200).send({ message: balance });
+});
+
 app.post("/balance", async (request, response) => {
   var userAddress = request.body.address;
   //   let balanceJSON = await alchemy.core.getTokenBalances(userAddress, [
