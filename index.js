@@ -16,9 +16,8 @@ const settings = {
   apiKey: "KVaI90DcfS-GURcmYKsK-kdNBLHHPMog",
   network: Network.ETH_SEPOLIA,
 };
-let userAddress = "";
 
-let contractAddress = "0x706a71B837D9c8B1dae73a55aF1d63726dD7B8A1";
+let contractAddress = "0x65DDBB4E7f331E2C52B2F5DDD05859aD48841BF8";
 
 const alchemy = new Alchemy(settings);
 
@@ -32,7 +31,7 @@ app.post("/createacc", async (request, response) => {
 });
 
 app.post("/balance", async (request, response) => {
-  userAddress = request.body.address;
+  var userAddress = request.body.address;
   //   let balanceJSON = await alchemy.core.getTokenBalances(userAddress, [
   //     contractAddress,
   //   ]);
@@ -47,15 +46,20 @@ app.post("/balance", async (request, response) => {
 
 
 app.post("/transfer", async (request, response) => {
+  var PRIVATE_KEY = ""
+  if(request.body.type == "transfer"){
+     PRIVATE_KEY = request.body.address_from_pk;
+  }
+  else if(request.body.type == "buy"){
+    PRIVATE_KEY = "056cb6b3a8f2cc317afd6d425ca8cde2ca867c32f1b372227b4f538101f5bce9";
+  }
 
-
-  const PRIVATE_KEY =
-    "056cb6b3a8f2cc317afd6d425ca8cde2ca867c32f1b372227b4f538101f5bce9";
+  
   // Creating a wallet instance to send the transaction
   const wallet = new Wallet(PRIVATE_KEY, alchemy);
 
   // Replace with the address you want to send the tokens to
-  const toAddress = "0x1c04b77e5e6803FE956EE92bf7A335B4084406dB";
+  const toAddress = request.body.address_to;
 
   // USDC contract address on Goerli testnet
   const usdcContractAddress = contractAddress;
@@ -301,14 +305,9 @@ app.post("/transfer", async (request, response) => {
     }
   ];
 
+
   // Amount of tokens to send: Here we will send 2 USDC tokens
-  const amountToSend = 2;
-
-  // Decimals for USDC token: 6
-  const decimals = 1;
-
-  // Convert the amount to send to decimals (6 decimals for USDC)
-  const amountToSendInDecimals = amountToSend * 10 ** decimals;
+  const amountToSend = parseFloat(request.body.amount);
 
   // Create the data for the transaction -> data that tells the transaction what to do (which function of the contract to call, what parameters to pass etc.)
   // Create an interface object from the ABI to encode the data
@@ -316,7 +315,7 @@ app.post("/transfer", async (request, response) => {
   // Encoding the data -> Call transfer function and pass the amount to send and the address to send the tokens to
   const data = iface.encodeFunctionData("transfer", [
     toAddress,
-    Utils.parseUnits(amountToSendInDecimals.toString(), "wei"),
+    Utils.parseUnits(amountToSend.toString(), "wei"),
   ]);
 
   // Make the transaction object to send the transaction
@@ -326,7 +325,7 @@ app.post("/transfer", async (request, response) => {
     maxPriorityFeePerGas: feeData.maxPriorityFeePerGas, // This is the fee that the miner will get
     maxFeePerGas: feeData.maxFeePerGas, // This is the maximum fee that you are willing to pay
     type: 2, // EIP-1559 transaction type
-    chainId: 11155111, // Corresponds to ETH_GOERLI
+    chainId: 11155111, // Corresponds to ETH_SEPOLIA
     data: data, // encoded data for the transaction
     gasLimit: Utils.parseUnits("250000", "wei"), // gas limit for the transaction (250000 gas) -> For sending ERC20 tokens, the gas limit is usually around 200,000-250,000 gas
   };
@@ -334,7 +333,7 @@ app.post("/transfer", async (request, response) => {
   // Send the transaction and log it.
   const sentTx = await wallet.sendTransaction(transaction);
   console.log(sentTx);
-  response.status(200).send({ message: "jji" });
+  response.status(200).send({ message: "Transfer SuccessFull!" });
 });
 
 
