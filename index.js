@@ -3,13 +3,15 @@ const app = express();
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const Web3 = require("web3");
-// app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(cors());
+
+
 // Setup
 const { Network, Alchemy, Utils, Wallet } = require("alchemy-sdk");
-// import { Network, Alchemy } from "a
+// web3 object
+var web3 = new Web3("https://eth-sepolia.g.alchemy.com/v2/KVaI90DcfS-GURcmYKsK-kdNBLHHPMog");
 const settings = {
   apiKey: "KVaI90DcfS-GURcmYKsK-kdNBLHHPMog",
   network: Network.ETH_SEPOLIA,
@@ -23,6 +25,12 @@ const alchemy = new Alchemy(settings);
 app.get("/", async (request, response) => {
   response.json("Server running");
 });
+
+app.post("/createacc", async (request, response) => {
+  const acc = web3.eth.accounts.create();
+  response.json(acc)
+});
+
 app.post("/balance", async (request, response) => {
   userAddress = request.body.address;
   //   let balanceJSON = await alchemy.core.getTokenBalances(userAddress, [
@@ -59,238 +67,238 @@ app.post("/transfer", async (request, response) => {
   // Every ERC20 contract has this function and we are going to use it to transfer the tokens
   const abi = [
     {
-      inputs: [
+      "inputs": [
         {
-          internalType: "uint256",
-          name: "_initialSupply",
-          type: "uint256",
-        },
+          "internalType": "uint256",
+          "name": "_initialSupply",
+          "type": "uint256"
+        }
       ],
-      stateMutability: "nonpayable",
-      type: "constructor",
+      "stateMutability": "nonpayable",
+      "type": "constructor"
     },
     {
-      anonymous: false,
-      inputs: [
+      "anonymous": false,
+      "inputs": [
         {
-          indexed: true,
-          internalType: "address",
-          name: "_owner",
-          type: "address",
+          "indexed": true,
+          "internalType": "address",
+          "name": "_owner",
+          "type": "address"
         },
         {
-          indexed: true,
-          internalType: "address",
-          name: "_spender",
-          type: "address",
+          "indexed": true,
+          "internalType": "address",
+          "name": "_spender",
+          "type": "address"
         },
         {
-          indexed: false,
-          internalType: "uint256",
-          name: "_value",
-          type: "uint256",
-        },
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_value",
+          "type": "uint256"
+        }
       ],
-      name: "Approval",
-      type: "event",
+      "name": "Approval",
+      "type": "event"
     },
     {
-      inputs: [
+      "anonymous": false,
+      "inputs": [
         {
-          internalType: "address",
-          name: "_spender",
-          type: "address",
+          "indexed": true,
+          "internalType": "address",
+          "name": "_from",
+          "type": "address"
         },
         {
-          internalType: "uint256",
-          name: "_value",
-          type: "uint256",
+          "indexed": true,
+          "internalType": "address",
+          "name": "_to",
+          "type": "address"
         },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_value",
+          "type": "uint256"
+        }
       ],
-      name: "approve",
-      outputs: [
-        {
-          internalType: "bool",
-          name: "success",
-          type: "bool",
-        },
-      ],
-      stateMutability: "nonpayable",
-      type: "function",
+      "name": "Transfer",
+      "type": "event"
     },
     {
-      inputs: [
+      "inputs": [
         {
-          internalType: "address",
-          name: "_to",
-          type: "address",
+          "internalType": "address",
+          "name": "",
+          "type": "address"
         },
         {
-          internalType: "uint256",
-          name: "_value",
-          type: "uint256",
-        },
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
       ],
-      name: "transfer",
-      outputs: [
+      "name": "allowance",
+      "outputs": [
         {
-          internalType: "bool",
-          name: "success",
-          type: "bool",
-        },
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
       ],
-      stateMutability: "nonpayable",
-      type: "function",
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      anonymous: false,
-      inputs: [
+      "inputs": [
         {
-          indexed: true,
-          internalType: "address",
-          name: "_from",
-          type: "address",
+          "internalType": "address",
+          "name": "_spender",
+          "type": "address"
         },
         {
-          indexed: true,
-          internalType: "address",
-          name: "_to",
-          type: "address",
-        },
-        {
-          indexed: false,
-          internalType: "uint256",
-          name: "_value",
-          type: "uint256",
-        },
+          "internalType": "uint256",
+          "name": "_value",
+          "type": "uint256"
+        }
       ],
-      name: "Transfer",
-      type: "event",
+      "name": "approve",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
     },
     {
-      inputs: [
+      "inputs": [
         {
-          internalType: "address",
-          name: "_from",
-          type: "address",
-        },
-        {
-          internalType: "address",
-          name: "_to",
-          type: "address",
-        },
-        {
-          internalType: "uint256",
-          name: "_value",
-          type: "uint256",
-        },
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
       ],
-      name: "transferFrom",
-      outputs: [
+      "name": "balanceOf",
+      "outputs": [
         {
-          internalType: "bool",
-          name: "success",
-          type: "bool",
-        },
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
       ],
-      stateMutability: "nonpayable",
-      type: "function",
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      inputs: [
+      "inputs": [],
+      "name": "name",
+      "outputs": [
         {
-          internalType: "address",
-          name: "",
-          type: "address",
-        },
-        {
-          internalType: "address",
-          name: "",
-          type: "address",
-        },
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
       ],
-      name: "allowance",
-      outputs: [
-        {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      inputs: [
+      "inputs": [],
+      "name": "standard",
+      "outputs": [
         {
-          internalType: "address",
-          name: "",
-          type: "address",
-        },
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
       ],
-      name: "balanceOf",
-      outputs: [
-        {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      inputs: [],
-      name: "name",
-      outputs: [
+      "inputs": [],
+      "name": "symbol",
+      "outputs": [
         {
-          internalType: "string",
-          name: "",
-          type: "string",
-        },
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
       ],
-      stateMutability: "view",
-      type: "function",
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      inputs: [],
-      name: "standard",
-      outputs: [
+      "inputs": [],
+      "name": "totalSupply",
+      "outputs": [
         {
-          internalType: "string",
-          name: "",
-          type: "string",
-        },
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
       ],
-      stateMutability: "view",
-      type: "function",
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      inputs: [],
-      name: "symbol",
-      outputs: [
+      "inputs": [
         {
-          internalType: "string",
-          name: "",
-          type: "string",
+          "internalType": "address",
+          "name": "_to",
+          "type": "address"
         },
+        {
+          "internalType": "uint256",
+          "name": "_value",
+          "type": "uint256"
+        }
       ],
-      stateMutability: "view",
-      type: "function",
+      "name": "transfer",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
     },
     {
-      inputs: [],
-      name: "totalSupply",
-      outputs: [
+      "inputs": [
         {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
+          "internalType": "address",
+          "name": "_from",
+          "type": "address"
         },
+        {
+          "internalType": "address",
+          "name": "_to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_value",
+          "type": "uint256"
+        }
       ],
-      stateMutability: "view",
-      type: "function",
-    },
+      "name": "transferFrom",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
   ];
 
   // Amount of tokens to send: Here we will send 2 USDC tokens
