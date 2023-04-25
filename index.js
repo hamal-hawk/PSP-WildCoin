@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+const HashSet = require('hashset');
 const express = require("express");
 const app = express();
 const cors = require("cors");
@@ -21,6 +23,8 @@ let contractAddress = "0x65DDBB4E7f331E2C52B2F5DDD05859aD48841BF8";
 
 const alchemy = new Alchemy(settings);
 
+var verificationHashSet = new HashSet();
+
 app.get("/", async (request, response) => {
   response.json("Server running");
 });
@@ -43,6 +47,31 @@ app.post("/balance", async (request, response) => {
   response.status(200).send({ message: balance });
 });
 
+app.post("/verify", async (request, response) => {
+  const PUBLIC_KEY = request.body.public_key;
+
+  const PRIVATE_KEY = "056cb6b3a8f2cc317afd6d425ca8cde2ca867c32f1b372227b4f538101f5bce9";
+
+  const PUBLIC_KEY_REC = request.body.address_to;
+  
+  const AMOUNT = request.body.amount;
+  
+  const hashInput = crypto.createHash('sha256').update(PRIVATE_KEY+PUBLIC_KEY+PUBLIC_KEY_REC+AMOUNT).digest('hex');
+
+
+  if(!verificationHashSet.contains(hashInput)){
+    verificationHashSet.add(hashInput);
+  }
+  else{
+    console.log('Duplicate entry');
+  }
+
+  console.log(Date.now());
+
+
+  response.status(200).send(verificationHashSet.toArray())
+
+});
 
 
 app.post("/transfer", async (request, response) => {
@@ -54,7 +83,6 @@ app.post("/transfer", async (request, response) => {
     PRIVATE_KEY = "056cb6b3a8f2cc317afd6d425ca8cde2ca867c32f1b372227b4f538101f5bce9";
   }
 
-  
   // Creating a wallet instance to send the transaction
   const wallet = new Wallet(PRIVATE_KEY, alchemy);
 
@@ -341,3 +369,5 @@ app.listen(3002, () => {
   // app.listen(9002, () => {
   console.log("Backend started at port 3002");
 });
+
+
