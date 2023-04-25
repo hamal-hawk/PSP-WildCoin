@@ -5,20 +5,21 @@ const app = express();
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const Web3 = require("web3");
-// app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(cors());
+
+
 // Setup
 const { Network, Alchemy, Utils, Wallet } = require("alchemy-sdk");
-// import { Network, Alchemy } from "a
+// web3 object
+var web3 = new Web3("https://eth-sepolia.g.alchemy.com/v2/KVaI90DcfS-GURcmYKsK-kdNBLHHPMog");
 const settings = {
   apiKey: "KVaI90DcfS-GURcmYKsK-kdNBLHHPMog",
   network: Network.ETH_SEPOLIA,
 };
-let userAddress = "";
 
-let contractAddress = "0x706a71B837D9c8B1dae73a55aF1d63726dD7B8A1";
+let contractAddress = "0x65DDBB4E7f331E2C52B2F5DDD05859aD48841BF8";
 
 const alchemy = new Alchemy(settings);
 
@@ -27,8 +28,14 @@ var verificationHashSet = new HashSet();
 app.get("/", async (request, response) => {
   response.json("Server running");
 });
+
+app.post("/createacc", async (request, response) => {
+  const acc = web3.eth.accounts.create();
+  response.json(acc)
+});
+
 app.post("/balance", async (request, response) => {
-  userAddress = request.body.address;
+  var userAddress = request.body.address;
   //   let balanceJSON = await alchemy.core.getTokenBalances(userAddress, [
   //     contractAddress,
   //   ]);
@@ -68,15 +75,19 @@ app.post("/verify", async (request, response) => {
 
 
 app.post("/transfer", async (request, response) => {
+  var PRIVATE_KEY = ""
+  if(request.body.type == "transfer"){
+     PRIVATE_KEY = request.body.address_from_pk;
+  }
+  else if(request.body.type == "buy"){
+    PRIVATE_KEY = "056cb6b3a8f2cc317afd6d425ca8cde2ca867c32f1b372227b4f538101f5bce9";
+  }
 
-  const PUBLIC_KEY = '0x1b3ce110533Ab2C348E8A31456865F2E3723530d';
-
-  const PRIVATE_KEY = "056cb6b3a8f2cc317afd6d425ca8cde2ca867c32f1b372227b4f538101f5bce9";
   // Creating a wallet instance to send the transaction
   const wallet = new Wallet(PRIVATE_KEY, alchemy);
 
   // Replace with the address you want to send the tokens to
-  const toAddress = "0x1c04b77e5e6803FE956EE92bf7A335B4084406dB";
+  const toAddress = request.body.address_to;
 
   // USDC contract address on Goerli testnet
   const usdcContractAddress = contractAddress;
@@ -88,248 +99,243 @@ app.post("/transfer", async (request, response) => {
   // Every ERC20 contract has this function and we are going to use it to transfer the tokens
   const abi = [
     {
-      inputs: [
+      "inputs": [
         {
-          internalType: "uint256",
-          name: "_initialSupply",
-          type: "uint256",
-        },
+          "internalType": "uint256",
+          "name": "_initialSupply",
+          "type": "uint256"
+        }
       ],
-      stateMutability: "nonpayable",
-      type: "constructor",
+      "stateMutability": "nonpayable",
+      "type": "constructor"
     },
     {
-      anonymous: false,
-      inputs: [
+      "anonymous": false,
+      "inputs": [
         {
-          indexed: true,
-          internalType: "address",
-          name: "_owner",
-          type: "address",
+          "indexed": true,
+          "internalType": "address",
+          "name": "_owner",
+          "type": "address"
         },
         {
-          indexed: true,
-          internalType: "address",
-          name: "_spender",
-          type: "address",
+          "indexed": true,
+          "internalType": "address",
+          "name": "_spender",
+          "type": "address"
         },
         {
-          indexed: false,
-          internalType: "uint256",
-          name: "_value",
-          type: "uint256",
-        },
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_value",
+          "type": "uint256"
+        }
       ],
-      name: "Approval",
-      type: "event",
+      "name": "Approval",
+      "type": "event"
     },
     {
-      inputs: [
+      "anonymous": false,
+      "inputs": [
         {
-          internalType: "address",
-          name: "_spender",
-          type: "address",
+          "indexed": true,
+          "internalType": "address",
+          "name": "_from",
+          "type": "address"
         },
         {
-          internalType: "uint256",
-          name: "_value",
-          type: "uint256",
+          "indexed": true,
+          "internalType": "address",
+          "name": "_to",
+          "type": "address"
         },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_value",
+          "type": "uint256"
+        }
       ],
-      name: "approve",
-      outputs: [
-        {
-          internalType: "bool",
-          name: "success",
-          type: "bool",
-        },
-      ],
-      stateMutability: "nonpayable",
-      type: "function",
+      "name": "Transfer",
+      "type": "event"
     },
     {
-      inputs: [
+      "inputs": [
         {
-          internalType: "address",
-          name: "_to",
-          type: "address",
+          "internalType": "address",
+          "name": "",
+          "type": "address"
         },
         {
-          internalType: "uint256",
-          name: "_value",
-          type: "uint256",
-        },
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
       ],
-      name: "transfer",
-      outputs: [
+      "name": "allowance",
+      "outputs": [
         {
-          internalType: "bool",
-          name: "success",
-          type: "bool",
-        },
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
       ],
-      stateMutability: "nonpayable",
-      type: "function",
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      anonymous: false,
-      inputs: [
+      "inputs": [
         {
-          indexed: true,
-          internalType: "address",
-          name: "_from",
-          type: "address",
+          "internalType": "address",
+          "name": "_spender",
+          "type": "address"
         },
         {
-          indexed: true,
-          internalType: "address",
-          name: "_to",
-          type: "address",
-        },
-        {
-          indexed: false,
-          internalType: "uint256",
-          name: "_value",
-          type: "uint256",
-        },
+          "internalType": "uint256",
+          "name": "_value",
+          "type": "uint256"
+        }
       ],
-      name: "Transfer",
-      type: "event",
+      "name": "approve",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
     },
     {
-      inputs: [
+      "inputs": [
         {
-          internalType: "address",
-          name: "_from",
-          type: "address",
-        },
-        {
-          internalType: "address",
-          name: "_to",
-          type: "address",
-        },
-        {
-          internalType: "uint256",
-          name: "_value",
-          type: "uint256",
-        },
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
       ],
-      name: "transferFrom",
-      outputs: [
+      "name": "balanceOf",
+      "outputs": [
         {
-          internalType: "bool",
-          name: "success",
-          type: "bool",
-        },
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
       ],
-      stateMutability: "nonpayable",
-      type: "function",
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      inputs: [
+      "inputs": [],
+      "name": "name",
+      "outputs": [
         {
-          internalType: "address",
-          name: "",
-          type: "address",
-        },
-        {
-          internalType: "address",
-          name: "",
-          type: "address",
-        },
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
       ],
-      name: "allowance",
-      outputs: [
-        {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      inputs: [
+      "inputs": [],
+      "name": "standard",
+      "outputs": [
         {
-          internalType: "address",
-          name: "",
-          type: "address",
-        },
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
       ],
-      name: "balanceOf",
-      outputs: [
-        {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      inputs: [],
-      name: "name",
-      outputs: [
+      "inputs": [],
+      "name": "symbol",
+      "outputs": [
         {
-          internalType: "string",
-          name: "",
-          type: "string",
-        },
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
       ],
-      stateMutability: "view",
-      type: "function",
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      inputs: [],
-      name: "standard",
-      outputs: [
+      "inputs": [],
+      "name": "totalSupply",
+      "outputs": [
         {
-          internalType: "string",
-          name: "",
-          type: "string",
-        },
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
       ],
-      stateMutability: "view",
-      type: "function",
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      inputs: [],
-      name: "symbol",
-      outputs: [
+      "inputs": [
         {
-          internalType: "string",
-          name: "",
-          type: "string",
+          "internalType": "address",
+          "name": "_to",
+          "type": "address"
         },
+        {
+          "internalType": "uint256",
+          "name": "_value",
+          "type": "uint256"
+        }
       ],
-      stateMutability: "view",
-      type: "function",
+      "name": "transfer",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
     },
     {
-      inputs: [],
-      name: "totalSupply",
-      outputs: [
+      "inputs": [
         {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
+          "internalType": "address",
+          "name": "_from",
+          "type": "address"
         },
+        {
+          "internalType": "address",
+          "name": "_to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_value",
+          "type": "uint256"
+        }
       ],
-      stateMutability: "view",
-      type: "function",
-    },
+      "name": "transferFrom",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
   ];
 
+
   // Amount of tokens to send: Here we will send 2 USDC tokens
-  const amountToSend = 2;
-
-  // Decimals for USDC token: 6
-  const decimals = 1;
-
-  // Convert the amount to send to decimals (6 decimals for USDC)
-  const amountToSendInDecimals = amountToSend * 10 ** decimals;
+  const amountToSend = parseFloat(request.body.amount);
 
   // Create the data for the transaction -> data that tells the transaction what to do (which function of the contract to call, what parameters to pass etc.)
   // Create an interface object from the ABI to encode the data
@@ -337,7 +343,7 @@ app.post("/transfer", async (request, response) => {
   // Encoding the data -> Call transfer function and pass the amount to send and the address to send the tokens to
   const data = iface.encodeFunctionData("transfer", [
     toAddress,
-    Utils.parseUnits(amountToSendInDecimals.toString(), "wei"),
+    Utils.parseUnits(amountToSend.toString(), "wei"),
   ]);
 
   // Make the transaction object to send the transaction
@@ -347,7 +353,7 @@ app.post("/transfer", async (request, response) => {
     maxPriorityFeePerGas: feeData.maxPriorityFeePerGas, // This is the fee that the miner will get
     maxFeePerGas: feeData.maxFeePerGas, // This is the maximum fee that you are willing to pay
     type: 2, // EIP-1559 transaction type
-    chainId: 11155111, // Corresponds to ETH_GOERLI
+    chainId: 11155111, // Corresponds to ETH_SEPOLIA
     data: data, // encoded data for the transaction
     gasLimit: Utils.parseUnits("250000", "wei"), // gas limit for the transaction (250000 gas) -> For sending ERC20 tokens, the gas limit is usually around 200,000-250,000 gas
   };
@@ -355,7 +361,7 @@ app.post("/transfer", async (request, response) => {
   // Send the transaction and log it.
   const sentTx = await wallet.sendTransaction(transaction);
   console.log(sentTx);
-  response.status(200).send({ message: "jji" });
+  response.status(200).send({ message: "Transfer SuccessFull!" });
 });
 
 
