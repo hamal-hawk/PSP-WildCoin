@@ -43,20 +43,6 @@ app.post("/tokenbalance", async (request, response) => {
   response.status(200).send({ message: balance });
 });
 
-app.post("/balance", async (request, response) => {
-  var userAddress = request.body.address;
-  //   let balanceJSON = await alchemy.core.getTokenBalances(userAddress, [
-  //     contractAddress,
-  //   ]);
-  //   response.status(200).send({ message: balanceJSON });
-
-  let balance = await alchemy.core.getBalance(userAddress, "latest");
-  balance = Utils.formatEther(balance);
-  //   console.log(`Balance of ${address}: ${balance} ETH`);
-  response.status(200).send({ message: balance });
-});
-
-
 app.post("/transfer", async (request, response) => {
   var PRIVATE_KEY = ""
   const AMOUNT = request.body.amount;
@@ -368,7 +354,6 @@ app.post("/transfer", async (request, response) => {
 
 
 app.listen(3002, () => {
-  // app.listen(9002, () => {
   console.log("Backend started at port 3002");
 });
 
