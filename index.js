@@ -61,7 +61,7 @@ app.post("/transfer", async (request, response) => {
          console.log(hashInput)
        }
        else{
-        response.json("Transaction Verified!")
+        response.send({ message: "Transaction Verified!" })
        }
    
     }
