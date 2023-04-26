@@ -3,7 +3,6 @@ const HashSet = require('hashset');
 const express = require("express");
 const app = express();
 const cors = require("cors");
-const bodyParser = require("body-parser");
 const Web3 = require("web3");
 app.use(express.json());
 app.use(express.urlencoded());
@@ -27,7 +26,7 @@ var verificationHashSet = new HashSet();
 
 
 app.get("/", async (request, response) => {
-  response.json("Server running");
+  response.send("Server running");
 });
 
 app.post("/createacc", async (request, response) => {
