@@ -48,12 +48,13 @@ app.post("/transfer", async (request, response) => {
   // Replace with the address you want to send the tokens to
   const toAddress = request.body.address_to;
   const PUBLIC_KEY = request.body.address_SENDER;
+  const date_time = request.body.datetime;
   
   if(request.body.type == "transfer"){
      PRIVATE_KEY = request.body.address_from_pk;
      if(request.body.type == "transfer"){
       PRIVATE_KEY = request.body.address_from_pk;
-      const hashInput = crypto.createHash('sha256').update(PRIVATE_KEY+PUBLIC_KEY+toAddress+AMOUNT).digest('hex');
+      const hashInput = crypto.createHash('sha256').update(PRIVATE_KEY+PUBLIC_KEY+toAddress+AMOUNT+date_time).digest('hex');
  
        if(!verificationHashSet.contains(hashInput)){
          verificationHashSet.add(hashInput);
