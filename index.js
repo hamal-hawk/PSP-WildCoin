@@ -353,7 +353,7 @@ app.post("/transfer", async (request, response) => {
 
 
 app.listen(3000, () => {
-  console.log("Backend started at port 3002");
+  console.log("Backend started at port 3000");
 });
 
 
